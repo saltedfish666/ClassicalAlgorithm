@@ -1,0 +1,178 @@
+#include <iostream>
+#include <sstream>
+#include <string>
+using namespace std;
+int string_to_num(string k){
+   int back;
+   stringstream instr(k);
+   instr>>back;
+   return back;
+}
+string num_to_string(int intValue){
+   string result;
+   stringstream stream;
+   stream<<intValue;
+   stream>>result;
+   return result;
+}
+string stringBeforeZero(string str,int s){
+   for(int i = 0; i < s; i++){
+     str.insert(0,"0");
+   }
+   return str;
+}
+string stringAddstring(string str1,string str2){
+   if(str1.size() > str2.size()){
+     str2 = stringBeforeZero(str2,str1.size()-str2.size());
+   }else if(str1.size() < str2.size()){
+     str1 = stringBeforeZero(str1,str2.size()-str1.size());
+   }
+   string result;
+   int flag = 0;
+   for(int i = str1.size()-1; i >= 0; i--){
+      int c = (str1[i]-'0')+(str2[i]-'0')+flag;
+	  flag = c/10;
+	  c %= 10;
+	  result.insert(0,num_to_string(c));
+   }
+   if(0!=flag){
+      result.insert(0,num_to_string(flag));
+   }
+   return result;
+}
+string stringSubtractstring(string str1,string str2){
+   while('0' == str1[0] && str1.size() > 1){
+     str1 = str1.substr(1,str1.size()-1);
+   }
+   while('0' == str2[0]&&str2.size() > 1){
+     str2 = str2.substr(1,str2.size()-1);
+   }
+   if(str1.size() > str2.size()){
+     str2 = stringBeforeZero(str2,str1.size()-str2.size());
+   }
+   string result;
+   for(int i = str1.size() - 1;i >= 0;i--){
+      int c= (str1[i] - '0')-(str2[i] - '0');
+	  if(c < 0){
+	     c += 10;
+		 int prePos = i - 1;
+		 char preChar = str1[prePos];
+		 while('0' == preChar){
+		   str1[prePos]='9';
+		   prePos -= 1;
+		   preChar = str1[prePos];
+		 }
+		 str1[prePos] -= 1;
+	  }
+	  result.insert(0,num_to_string(c));
+   }
+   return result;
+}
+string stringFollowZero(string str,int s){
+   for(int i = 0; i < s; i++)
+	   str.insert(str.size(),"0");
+   return str;
+}
+string IntMult(string x,string y){
+   while('0' == x[0] && x.size() > 1){
+      x = x.substr(1,x.size()-1);
+   }
+   while('0' == y[0]&&y.size() > 1){
+      y = y.substr(1,y.size()-1);
+   }
+   int f = 4;
+   if(x.size() > 2 || y.size() > 2){
+      if(x.size() >= y.size()){
+	     while(x.size() > f){
+		   f *= 2;
+		 }
+		 if(x.size() != f){
+		    x = stringBeforeZero(x,f-x.size());
+			y = stringBeforeZero(y,f-y.size());
+		 }
+	  }else{
+	    while(y.size() > f){
+		  f *= 2;
+		}
+        if(y.size() != f){
+		  x = stringBeforeZero(x,f-x.size());
+		  y = stringBeforeZero(y,f-y.size());
+		}
+	  }
+   }
+   if(1 == x.size()){
+     x = stringBeforeZero(x,1);
+   }
+   if(1 == y.size()){
+     y = stringBeforeZero(y,1);
+   }
+   if(x.size() > y.size()){
+     y = stringBeforeZero(y,x.size()-y.size());
+   }
+   if(x.size() < y.size()){
+     x = stringBeforeZero(x,y.size() - x.size());
+   }
+   int s = x.size();
+   string a1,a0,b1,b0;
+   if(s > 1){
+     a1 = x.substr(0,s/2);
+	 a0 = x.substr(s/2,s-1);
+	 b1 = y.substr(0,s/2);
+	 b0 = y.substr(s/2,s-1);
+   }
+   string result;
+   if(s == 2){
+     int na = string_to_num(a1);
+	 int nb = string_to_num(a0);
+	 int nc = string_to_num(b1);
+	 int nd = string_to_num(b0);
+	 result = num_to_string((na*10+nb)*(nc*10+nd));
+   }
+   else{
+     string c2 = IntMult(a1,b1);
+	 string c0 = IntMult(a0,b0);
+	 string c1_1 = stringAddstring(a1,a0);
+	 string c1_2 = stringAddstring(b1,b0);
+	 string c1_3 = IntMult(c1_1,c1_2);
+	 string c1_4 = stringAddstring(c2,c0);
+	 string c1 = stringSubtractstring(c1_3,c1_4);
+	 string s1 = stringFollowZero(c1,s/2);
+	 string s2 = stringFollowZero(c2,s);
+	 result = stringAddstring(stringAddstring(s2,s1),c0);
+   }
+   return result;
+}
+int main(){
+ int f = 1;
+   while(1 == f){
+   string A,B,C,D;
+   string num1,num2;
+   string r;
+   cout<<"大整数乘法运算（分治法):"<<endl;
+   cout<<"请输入第一个大整数:";
+   cin >> num1;
+   int i = 0;
+   for(i = 0; i < num1.size(); i++){
+      if(num1[i] < '0' || num1[i] > '9'){
+	    cout << "您输入的数据不合法，请重新输入：";
+		cin >> num1;
+		i = -1;
+	  }
+   }
+   cout << "请输入第二个大整数：";
+   cin >> num2;
+   for(i = 0; i < num2.size(); i++){
+     if(num2[i] < '0' || num2[i] > '9'){
+	   cout << "您输入的数据不合法，请重新输入：";
+	   cin >> num2;
+	   i = -1;
+	 }
+   }
+   r = IntMult(num1,num2);
+   while('0' == r[0] && r.size() > 1){
+      r = r.substr(1,r.size() - 1);
+   }
+   cout << "结果："<<endl;
+   cout << r << endl;
+   }
+}
